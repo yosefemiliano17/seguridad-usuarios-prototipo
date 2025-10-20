@@ -33,6 +33,8 @@ class Modelo {
 
         BaseDeDatos::getInstancia()->beginTransaction();
         try {
+            $usuarioDominio = BaseDeDatos::getInstancia()->obtenerUsuario($usuario);
+            
             if ($usuarioDominio->isStatus()) {
                 throw new \Exception(message: "Ya has iniciado sesión");
             }
