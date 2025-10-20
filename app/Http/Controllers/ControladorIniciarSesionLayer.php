@@ -34,7 +34,6 @@ class ControladorIniciarSesionLayer extends Controller
             $usuarioDominio = new UsuarioDominio($credentials['email'], $credentials['nip'],false,0,null);
             $usuario = $this->modeloUsuarios->iniciarSesion($usuarioDominio);
 
-            // --- GUARDAR EN SESSION (gestión propia) ---
             $request->session()->put('usuario', [
                 'email' => $usuario->getEmail(),
                 'id' => method_exists($usuario, 'getId') ? $usuario->getId() : null,
@@ -53,14 +52,12 @@ class ControladorIniciarSesionLayer extends Controller
     }
     
     public function destroy(Request $request) {
-        // Leer usuario desde la sesión (sin usar auth())
         $usuarioSesion = $request->session()->get('usuario');
         if ($usuarioSesion && isset($usuarioSesion['email'])) {
             $usuarioDominio = new UsuarioDominio($usuarioSesion['email'], '', false, 0, null);
             $this->modeloUsuarios->cerrarSesion($usuarioDominio);
         }
 
-        // invalidar sesión
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
