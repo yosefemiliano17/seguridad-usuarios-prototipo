@@ -30,7 +30,6 @@ class ControladorIniciarSesionLayer extends Controller
         ]);
 
         try {
-            //crear objeto del dominio con los datos del request
             $usuarioDominio = new UsuarioDominio($credentials['email'], $credentials['nip'],false,0,null);
             $usuario = $this->modeloUsuarios->iniciarSesion($usuarioDominio);
 
@@ -39,8 +38,7 @@ class ControladorIniciarSesionLayer extends Controller
                 'id' => method_exists($usuario, 'getId') ? $usuario->getId() : null,
             ]);
             $request->session()->regenerate();
-            // ---------------------------------------------
-
+         
             return redirect()->route('dashboard')
                 ->with('success', '¡Bienvenido de nuevo, ' . $usuario->getEmail() . '!');
 

@@ -15,32 +15,17 @@ class Modelo {
         if ($usuarioDominio === null) {
             throw new \Exception(message: "Usuario no encontrado");
         }
-
-        //dd($usuarioDominio);
-        
-               //throw new \Exception(message: "El correo no existe");
-            //creamos usarios opcionalmente por ahora para verificaciones
-            /*$usuarioNuevo= new UsuarioDominio(
-                email: $usuario->getEmail(),
-                password: Hash::make($usuario->getPassword()),
-                status: false,
-                failedAttempts: 0,
-                lockUntil: null
-            );
-            BaseDeDatos::getInstancia()->crearUsuario($usuarioNuevo);
-            return $usuarioNuevo;*/
             
 
         BaseDeDatos::getInstancia()->beginTransaction();
         try {
-            // Verificar si ya está logueado
+        
             $usuarioDominio = BaseDeDatos::getInstancia()->obtenerUsuario($usuario);
             if ($usuarioDominio->isStatus()) {
-                //BaseDeDatos::getInstancia()->rollback();
                 throw new \Exception(message: "Ya has iniciado sesión");
             }
             
-            // Verificar si la cuenta está bloqueada
+           
             $fechaActual = new \DateTime();
             if ($usuarioDominio->getLockUntil() !== null && !empty($usuarioDominio->getLockUntil())) {
                 $fechaBloqueo = new \DateTime($usuarioDominio->getLockUntil());
@@ -54,14 +39,14 @@ class Modelo {
                         $mensaje = "Tu cuenta está bloqueada. Podrás intentar de nuevo en $minutosRestantes minutos";
                     }
                     
-                   // BaseDeDatos::getInstancia()->rollback();
+                  
                     throw new \Exception(message: $mensaje);
                 }
                 $usuarioDominio->setLockUntil(null);
                 $usuarioDominio->setFailedAttempts(0);
             }
             
-            // Verificar la contraseña
+           
             if(!Hash::check($usuario->getPassword(), $usuarioDominio->getPassword())) {
                 $intentosFallidos = $usuarioDominio->getFailedAttempts() + 1;
                 $usuarioDominio->setFailedAttempts($intentosFallidos);
@@ -79,7 +64,6 @@ class Modelo {
                 }
             }
             
-            // Si llegamos aquí, la contraseña es correcta
             $usuarioDominio->setStatus(true);
             $usuarioDominio->setFailedAttempts(0);
             $usuarioDominio->setLockUntil(null);
